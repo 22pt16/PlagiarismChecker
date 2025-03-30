@@ -2,18 +2,17 @@ import re
 
 def preprocess_text(text):
     """Clean and split text into sentences."""
+    print("🔄 Preprocessing text...")
     if not text or text.strip() == "":
-        return ["Empty document"]  # Ensures non-empty input
+        print("⚠️ Empty or invalid document provided!")
+        return ["Empty document"]
 
     # Remove special characters (except periods) and normalize whitespace
     text = re.sub(r'[^\w\s.]', '', text).strip()
-    
-    # Split text into sentences
     sentences = re.split(r'\.\s*', text)  # Split by period and space
-    
-    # Remove empty elements and strip spaces
-    sentences = [s.strip() for s in sentences if s.strip()]
 
+    sentences = [s.strip() for s in sentences if s.strip()]
+    print(f"✅ Preprocessed {len(sentences)} sentences.")
     return sentences if sentences else ["No meaningful content"]
 
 def detect_paraphrased_pairs(sentences1, sentences2, threshold=0.8):
