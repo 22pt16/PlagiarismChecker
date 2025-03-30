@@ -3,6 +3,7 @@ import numpy as np
 from sentence_transformers import SentenceTransformer, util
 from rouge_score import rouge_scorer
 from nltk.translate.bleu_score import sentence_bleu
+import re
 
 # Load Sentence Transformer model
 print("🔄 Loading Sentence Transformer model...")
@@ -82,7 +83,6 @@ def evaluate_text_similarity(text1, text2):
         "Plagiarism Percentage": plagiarism_percentage
     }
 
-
 def detect_paraphrased_pairs(sentences1, sentences2, threshold=0.8):
     """Detect and return paraphrased sentence pairs with similarity above the threshold."""
     print("🔎 Detecting paraphrased sentence pairs...")
@@ -100,3 +100,25 @@ def detect_paraphrased_pairs(sentences1, sentences2, threshold=0.8):
                 )
     print(f"✅ Found {len(paraphrased_pairs)} paraphrased pairs.")
     return paraphrased_pairs
+
+def highlight_paraphrased_pairs(doc1, doc2, paraphrased_pairs):
+    """Highlight paraphrased sentence pairs correctly in both documents."""
+    for s1, s2, score in paraphrased_pairs:
+        s1_escaped = re.escape(s1)
+        s2_escaped = re.escape(s2)
+
+        # Wrap only the paraphrased part with color
+        doc1 = re.sub(
+            s1_escaped,
+            f"<span style='background-color: #FFD700; color: black; padding: 2px 5px; border-radius: 5px;'>{s1}</span>",
+            doc1,
+            flags=re.IGNORECASE
+        )
+        doc2 = re.sub(
+            s2_escaped,
+            f"<span style='background-color: #FFD700; color: black; padding: 2px 5px; border-radius: 5px;'>{s2}</span>",
+            doc2,
+            flags=re.IGNORECASE
+        )
+
+    return doc1, doc2
