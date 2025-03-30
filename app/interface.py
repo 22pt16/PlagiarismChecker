@@ -1,22 +1,37 @@
 import streamlit as st
-from paraphrase_checker import calculate_similarity
+from paraphrase_checker import get_embeddings, calculate_similarity
+from utils import preprocess_text
 
 st.title("Plagiarism Checker")
 
-# Input text areas for two documents
-doc1 = st.text_area("Enter Document 1:", height=200)
-doc2 = st.text_area("Enter Document 2:", height=200)
+uploaded_file1 = st.file_uploader("Upload First Document", type=["txt"])
+uploaded_file2 = st.file_uploader("Upload Second Document", type=["txt"])
 
-if st.button("Check for Plagiarism"):
-    if doc1.strip() and doc2.strip():
-        similarity_score = calculate_similarity(doc1, doc2)
-        st.write(f"**Similarity Score:** {similarity_score:.2%}")
+if uploaded_file1 and uploaded_file2:
+    doc1 = uploaded_file1.read().decode("utf-8").strip()
+    doc2 = uploaded_file2.read().decode("utf-8").strip()
 
-        if similarity_score > 0.8:
-            st.error("⚠️ High similarity detected! Possible plagiarism.")
-        elif similarity_score > 0.5:
-            st.warning("⚠️ Moderate similarity detected. Some content overlap found.")
-        else:
-            st.success("✅ Low similarity. No significant plagiarism detected.")
+    if not doc1 or not doc2:
+        st.error("❌ One or both documents are empty. Please upload valid text files.")
     else:
-        st.error("Please enter text in both documents before checking.")
+        st.subheader("Uploaded Documents:")
+        st.write("**Document 1 Preview:**", doc1[:500])
+        st.write("**Document 2 Preview:**", doc2[:500])  
+
+        # Preprocess text
+        sentences1 = preprocess_text(doc1)
+        sentences2 = preprocess_text(doc2)
+
+        st.write("**Processed Sentences (Doc 1):**", sentences1)
+        st.write("**Processed Sentences (Doc 2):**", sentences2)
+
+        try:
+            embeddings1 = get_embeddings(sentences1)
+            embeddings2 = get_embeddings(sentences2)
+
+            overall_similarity, similarity_matrix = calculate_similarity(embeddings1, embeddings2)
+
+            st.subheader(f"🔍 Similarity Score: {overall_similarity:.2%}")
+
+        except ValueError as e:
+            st.error(f"Error: {e}")
