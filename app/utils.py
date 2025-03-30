@@ -1,5 +1,7 @@
 import re
 
+from app.paraphrase_checker import calculate_similarity, get_embeddings
+
 def preprocess_text(text):
     """Clean and split text into sentences."""
     print("🔄 Preprocessing text...")
