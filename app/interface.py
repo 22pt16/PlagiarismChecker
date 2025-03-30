@@ -1,5 +1,7 @@
 import streamlit as st
 from paraphrase_checker import evaluate_text_similarity
+from paraphrase_checker import detect_paraphrased_pairs
+
 
 st.title("📄 Plagiarism and Paraphrase Detector")
 
@@ -28,11 +30,29 @@ if doc1_text and doc2_text:
     if st.button("Compare Documents"):
         results = evaluate_text_similarity(doc1_text, doc2_text)
 
-        st.subheader("📊 Evaluation Metrics")
-        st.write(f"**Cosine Similarity Score:** {results['Cosine Similarity']:.4f}")
-        st.write(f"**BLEU Score:** {results['BLEU Score']:.4f}")
-        st.write(f"**Plagiarism Percentage:** {results['Plagiarism Percentage']:.2f}%")
+        st.write("**Processed Sentences (Doc 1):**", sentences1)
+        st.write("**Processed Sentences (Doc 2):**", sentences2)
 
-        st.subheader("📌 ROUGE Scores")
-        for key, value in results["ROUGE"].items():
-            st.write(f"**{key.upper()} Score**: Precision={value.precision:.4f}, Recall={value.recall:.4f}, F1={value.fmeasure:.4f}")
+        try:
+            embeddings1 = get_embeddings(sentences1)
+            embeddings2 = get_embeddings(sentences2)
+
+            overall_similarity, similarity_matrix = calculate_similarity(embeddings1, embeddings2)
+
+            st.subheader(f"🔍 Similarity Score: {overall_similarity:.2%}")
+
+            # Run sentence-level analysis
+            paraphrased_pairs = detect_paraphrased_pairs(sentences1, sentences2, threshold=0.8)
+
+            if paraphrased_pairs:
+                st.subheader("🔗 Sentence-Level Similarities")
+                for s1, s2, score in paraphrased_pairs:
+                    st.write(f"➡️ **Doc 1:** {s1}")
+                    st.write(f"➡️ **Doc 2:** {s2}")
+                    st.write(f"🔗 **Similarity:** {score:.2%}")
+                    st.write("---")
+            else:
+                st.info("No highly similar sentence pairs detected.")
+
+        except ValueError as e:
+            st.error(f"Error: {e}")
