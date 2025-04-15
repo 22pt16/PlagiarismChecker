@@ -19,36 +19,36 @@ def extract_keywords(text, top_n=5):
 
     return [kw[0] for kw in keywords]
 
+import urllib.parse
+
 def fetch_search_results(query):
-    url = f"https://www.geeksforgeeks.org/?s={query}"
     headers = {"User-Agent": "Mozilla/5.0"}
-
-    try:
-        response = requests.get(url, headers=headers, timeout=5)
-        soup = BeautifulSoup(response.text, "html.parser")
-
-        links = []
-        for a_tag in soup.find_all("a", href=True):
-            href = a_tag["href"]
-            if href.startswith("https://www.geeksforgeeks.org") and "?" not in href:
-                links.append(href)
-
-        return links[:3]  # Top 3 GFG results
-    except Exception as e:
-        print(f"[⚠️ Error] GFG search failed: {e}")
-        return []
-
+    # Encode the query for a Google search and use your custom prefix format
+    encoded_query = urllib.parse.quote_plus(f"wikipedia%{query}")
+    search_url = f"https://www.google.com/search?q={encoded_query}"
     
+    response = requests.get(search_url, headers=headers)
+    soup = BeautifulSoup(response.text, "html.parser")
+    links = []
+
+    for g in soup.find_all("div", class_="tF2Cxc"):
+        link = g.find("a")
+        if link and "wikipedia.org" in link["href"]:
+            links.append(link["href"])
+
+    return links[:5]  # Only top 5 Wikipedia links
+
+
 def scrape_page_content(url):
-    try:
-        headers = {'User-Agent': 'Mozilla/5.0'}
-        response = requests.get(url, headers=headers, timeout=5)
-        soup = BeautifulSoup(response.text, "html.parser")
-        paragraphs = soup.find_all("p")
-        content = " ".join([p.text for p in paragraphs])
-        return content
-    except:
-        return ""
+    headers = {"User-Agent": "Mozilla/5.0"}
+    response = requests.get(url, headers=headers)
+    soup = BeautifulSoup(response.text, "html.parser")
+
+    content = ""
+    for p in soup.find_all("p"):
+        content += p.get_text()
+    return content
+
 
 def compare_with_web(input_text):
     keywords = extract_keywords(input_text)
