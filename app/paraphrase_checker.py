@@ -122,3 +122,4 @@ def highlight_paraphrased_pairs(doc1, doc2, paraphrased_pairs):
         )
 
     return doc1, doc2
+

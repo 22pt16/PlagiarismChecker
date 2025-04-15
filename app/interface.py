@@ -4,12 +4,18 @@ from paraphrase_checker import (
     detect_paraphrased_pairs,
     highlight_paraphrased_pairs,
 )
+from web_scraper import compare_with_web
+
 from utils import preprocess_text
 import asyncio
 import sys
 import pdfplumber
 from io import BytesIO
+import requests
+from bs4 import BeautifulSoup
 
+
+print("RUNNING STARTED")
 # 🩹 Fix for event loop error in Python 3.12
 if sys.version_info >= (3, 12):
     try:
@@ -24,6 +30,18 @@ st.title("📄 Plagiarism and Paraphrase Detector")
 uploaded_file1 = st.file_uploader("📥 Upload Document 1", type=["txt", "pdf"])
 uploaded_file2 = st.file_uploader("📥 Upload Document 2", type=["txt", "pdf"])
 
+def extract_text_from_url(url):
+    try:
+        response = requests.get(url)
+        soup = BeautifulSoup(response.text, 'html.parser')
+        # Remove scripts and styles
+        for script_or_style in soup(['script', 'style']):
+            script_or_style.decompose()
+        text = ' '.join(soup.stripped_strings)
+        return text
+    except Exception as e:
+        st.error(f"❌ Error fetching or parsing the URL: {e}")
+        return ""
 
 # Read uploaded documents
 def read_document(uploaded_file):
@@ -157,3 +175,29 @@ if doc1_text and doc2_text:
             st.warning("⚠️ No valid ROUGE scores generated.")
 
         print("✅ Document comparison complete!")
+
+            # Initialize session state for sidebar toggle
+        if "show_web_results" not in st.session_state:
+            st.session_state["show_web_results"] = False
+
+        # Button to toggle sidebar
+        if st.button("🌐 Toggle Web Plagiarism Pane"):
+            st.session_state["show_web_results"] = not st.session_state["show_web_results"]
+
+        # Sidebar for web plagiarism results
+        if st.session_state["show_web_results"]:
+            st.sidebar.title("🌐 Web Plagiarism Check (Doc 1)")
+            with st.spinner("Searching the web for similar content..."):
+                similarity_score, matched_urls, preview = compare_with_web(doc1_text)
+
+                if matched_urls:
+                    st.sidebar.markdown(f"**Similarity Score with Online Sources:** `{similarity_score:.2%}`")
+                    st.sidebar.markdown("---")
+                    for i, url in enumerate(matched_urls, 1):
+                        st.sidebar.markdown(f"**{i}.** [{url}]({url})")
+                    st.sidebar.markdown("---")
+                    st.sidebar.markdown("📄 **Matched Content Preview**")
+                    st.sidebar.text_area("Web Text Sample", preview, height=200)
+                else:
+                    st.sidebar.info("No similar content found on the web.")
+
