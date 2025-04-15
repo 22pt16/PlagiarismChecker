@@ -90,23 +90,26 @@ def display_evaluation_results(results):
         st.warning("⚠️ No valid ROUGE scores generated.")
 
 
-def display_web_results(doc_text):
-    with st.spinner("Searching the web for similar content..."):
+def display_web_results(doc_text, label="Document"):
+    with st.spinner(f"🌐 Searching the web for content similar to {label}..."):
         similarity_score, matched_urls, preview = compare_with_web(doc_text)
 
     # Debug line (you can remove it later)
-    print("DEBUG - Web Similarity Results:", similarity_score, matched_urls, preview)
+    print(f"DEBUG - Web Similarity Results for {label}:", similarity_score, matched_urls, preview)
 
+    st.markdown(f"### 🌐 Web Results for {label}")
     if matched_urls:
         st.markdown(f"**Similarity Score with Online Sources:** `{similarity_score:.2%}`")
         st.markdown("---")
         for i, url in enumerate(matched_urls, 1):
             st.markdown(f"**{i}.** [{url}]({url})")
         st.markdown("---")
-        st.markdown("📄 **Matched Content Preview**")
-        st.text_area("Web Text Sample", preview, height=200)
+        st.markdown(f"📄 **Matched Content Preview ({label})**")
+        st.text_area(f"{label} - Web Text Sample", preview, height=200)
     else:
-        st.info("No similar content found on the web.")
+        st.info(f"No similar content found online for **{label}**.")
+
+
 
 
 # -------------------- Streamlit App --------------------
@@ -145,5 +148,8 @@ if doc1_text and doc2_text:
         display_evaluation_results(results)
 
         # ---- Web Plagiarism Results in Sidebar ----
-        with st.sidebar.expander("🌐 Web Plagiarism Check for Document 1", expanded=False):
-            display_web_results(doc1_text)
+        with st.sidebar.expander("🌐 Web Plagiarism Check for Documents", expanded=False):
+            display_web_results(doc1_text, label="Document 1")
+            display_web_results(doc2_text, label="Document 2")
+
+            
