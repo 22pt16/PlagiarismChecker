@@ -43,15 +43,6 @@ def calculate_rouge(reference, candidate):
     return scores
 
 
-def calculate_bleu(reference, candidate):
-    """Compute BLEU score between two texts."""
-    print("🔢 Calculating BLEU score...")
-    reference_tokens = [reference.split()]
-    candidate_tokens = candidate.split()
-    bleu_score = sentence_bleu(reference_tokens, candidate_tokens)
-    print(f"✅ BLEU score calculated: {bleu_score:.4f}")
-    return bleu_score
-
 
 def calculate_plagiarism_percentage(similarity_matrix):
     """Estimate the percentage of plagiarism based on similarity scores."""
@@ -72,14 +63,12 @@ def evaluate_text_similarity(text1, text2):
 
     cosine_similarity, similarity_matrix = calculate_similarity(embeddings1, embeddings2)
     rouge_scores = calculate_rouge(text1, text2)
-    bleu_score = calculate_bleu(text1, text2)
     plagiarism_percentage = calculate_plagiarism_percentage(similarity_matrix)
 
     print("✅ Evaluation completed successfully!")
     return {
         "Cosine Similarity": cosine_similarity,
         "ROUGE": rouge_scores,
-        "BLEU Score": bleu_score,
         "Plagiarism Percentage": plagiarism_percentage
     }
 

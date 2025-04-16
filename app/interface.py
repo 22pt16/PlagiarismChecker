@@ -158,5 +158,3 @@ if doc1_text and doc2_text:
             display_web_results(doc2_text, label="Document 2")
 
         print("✅ Document Parsed")
-
-            

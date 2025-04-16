@@ -70,7 +70,7 @@ def compare_with_web(input_text):
         print("✅ URLs found:", urls)
         for url in urls:
             page_text = scrape_page_content(url)
-            if len(page_text) > 100:  # Consider only if the page has enough content
+            if len(page_text) > 25:  # Consider only if the page has enough content
                 combined_scraped_text += page_text + " "
                 matched_urls.append(url)
 
