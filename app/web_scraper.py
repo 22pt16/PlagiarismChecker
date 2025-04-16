@@ -75,10 +75,10 @@ def compare_with_web(input_text):
                 matched_urls.append(url)
 
     if not combined_scraped_text.strip():
-        return 0.0, [], "No valid content found online."
+        return keywords, 0.0, [], "No valid content found online."
 
     # Compute cosine similarity
     vectorizer = TfidfVectorizer().fit_transform([input_text, combined_scraped_text])
     similarity_score = cosine_similarity(vectorizer[0:1], vectorizer[1:2])[0][0]
 
-    return similarity_score, matched_urls, combined_scraped_text[:1000]  # returning preview
+    return keywords, similarity_score, matched_urls, combined_scraped_text[:1000]  # returning preview

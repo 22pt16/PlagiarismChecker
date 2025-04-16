@@ -91,12 +91,19 @@ def display_evaluation_results(results):
 
 def display_web_results(doc_text, label="Document"):
     with st.spinner(f"🌐 Searching the web for content similar to {label}..."):
-        similarity_score, matched_urls, preview = compare_with_web(doc_text)
+        keywords, similarity_score, matched_urls, preview = compare_with_web(doc_text)
 
     # Debug line (you can remove it later)
     print(f"DEBUG - Web Similarity Results for {label}:", similarity_score, matched_urls, preview)
 
     st.markdown(f"### 🌐 Web Results for {label}")
+    st.markdown("🔍Keywords Detected:")
+    # Check if keywords is a list and not empty
+    if keywords:
+        for key in keywords:
+            st.markdown(f"* {key}")  # Corrected the formatting to include the keyword
+    else:
+        st.markdown("No keywords detected.")
     if matched_urls:
         st.markdown(f"**Similarity Score with Online Sources:** `{similarity_score:.2%}`")
         st.markdown("---")
