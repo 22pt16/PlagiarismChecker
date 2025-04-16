@@ -73,7 +73,6 @@ def display_paraphrased_pairs(pairs):
 def display_evaluation_results(results):
     st.subheader("📊 Evaluation Metrics")
     st.write(f"**Cosine Similarity Score:** {results['Cosine Similarity']:.4f}")
-    st.write(f"**BLEU Score:** {results['BLEU Score']:.4f}")
     st.write(f"**Plagiarism Percentage:** {results['Plagiarism Percentage']:.2f}%")
 
     st.subheader("📌 ROUGE Scores")
@@ -104,8 +103,7 @@ def display_web_results(doc_text, label="Document"):
         for i, url in enumerate(matched_urls, 1):
             st.markdown(f"**{i}.** [{url}]({url})")
         st.markdown("---")
-        st.markdown(f"📄 **Matched Content Preview ({label})**")
-        st.text_area(f"{label} - Web Text Sample", preview, height=200)
+        
     else:
         st.info(f"No similar content found online for **{label}**.")
 
@@ -151,5 +149,7 @@ if doc1_text and doc2_text:
         with st.sidebar.expander("🌐 Web Plagiarism Check for Documents", expanded=False):
             display_web_results(doc1_text, label="Document 1")
             display_web_results(doc2_text, label="Document 2")
+
+        print("✅ Document Parsed")
 
             
