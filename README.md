@@ -30,9 +30,3 @@
 
 ---
 
-## 📦 Installation
-
-```bash
-git clone https://github.com/yourusername/inspectra.git
-cd inspectra
-pip install -r requirements.txt
